@@ -60,13 +60,13 @@ c_instructure:  DESTEQ COMP
                 {
                     uint16_t temp;
                     temp = set_comp(0, $1);
-                    $$ = set_jump($$, $3);
+                    $$ = set_jump(temp, $3);
                 }
         |       NUMBER SEMIC JUMP
                 {
                     uint16_t temp;
                     temp = set_comp(0, num2comp($1));
-                    $$ = set_jump($$, $3);
+                    $$ = set_jump(temp, $3);
                 }
         ;
 
@@ -102,7 +102,7 @@ uint16_t num2comp(uint16_t number) {
         return 42;
     } else if (number == 1) {
         return 63;
-    } else if (number == -1) {
+    } else if (number == 0xffff) {
         return 58;
     }
 }
