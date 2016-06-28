@@ -14,12 +14,11 @@ int main(int argc, char *argv[]){
     FILE *fp;
     
     if (argc < 2) {
-        fprintf(stderr, "no argument\n");
-        return 1;
+        yyin = stdin;
+    } else {
+        fp = fopen(argv[1], "r");
+        yyin = fp;
     }
-
-    fp = fopen(argv[1], "r");
-    yyin = fp;
 
     yyparse();
     
