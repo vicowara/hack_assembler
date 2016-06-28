@@ -2,7 +2,6 @@
 #include <stdint.h>
 #define YYDEBUG 1
 #define YYSTYPE uint16_t
-static uint16_t instructure;
 void set_instructure_type(uint16_t*, char);
 void set_value(uint16_t*, uint16_t);
 void set_comp(uint16_t*, uint16_t);
@@ -28,16 +27,15 @@ programs:
         |       programs NL
         |       programs a_instructure NL
                 {
-                    set_instructure_type(&instructure, 'a');
-                    set_value(&instructure, $2);
-                    putsbin(instructure);
-                    instructure = 0;
+                    set_instructure_type($2, 'a');
+                    $$ = $2;
+                    putsbin($$);
                 }
         |       programs c_instructure NL
                 {
-                    set_instructure_type(&instructure, 'c');
-                    putsbin(instructure);
-                    instructure = 0;
+                    set_instructure_type($2, 'c');
+                    $$ = $2;
+                    putsbin($$);
                 }
         |       programs l_instructure NL
                 {
@@ -50,23 +48,23 @@ a_instructure:  AT a_expr { $$ = $2; }
 
 c_instructure:  DESTEQ COMP
                 {
-                    set_dest(&instructure, $1);
-                    set_comp(&instructure, $2);
+                    set_dest($$, $1);
+                    set_comp($$, $2);
                 }
         |       DESTEQ NUMBER
                 {
-                    set_dest(&instructure, $1);
-                    set_comp(&instructure, num2comp($2));
+                    set_dest($$, $1);
+                    set_comp($$, num2comp($2));
                 }
         |       COMP SEMIC JUMP
                 {
-                    set_comp(&instructure, $1);
-                    set_jump(&instructure, $3);
+                    set_comp($$, $1);
+                    set_jump($$, $3);
                 }
         |       NUMBER SEMIC JUMP
                 {
-                    set_comp(&instructure, num2comp($1));
-                    set_jump(&instructure, $3);
+                    set_comp($$, num2comp($1));
+                    set_jump($$, $3);
                 }
         ;
 
@@ -80,7 +78,7 @@ a_expr:         NUMBER
 
 void set_instructure_type(uint16_t* instructure, char type) {
     if (type == 'a') {
-        // 0x8000 == 0b0000000000000000
+        // 0x8000 == 0b1000000000000000
         *instructure &= ~0x8000;
     } else if (type == 'c') {
         // 0xe000 == 0b1110000000000000
