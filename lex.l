@@ -52,12 +52,20 @@ uint16_t decode_dest(char*);
 ")"                    {return C_PAREN;}
 
 [AMD]{1,3}"="          {yylval = decode_dest(yytext); return DESTEQ;}
-[0-9]+                 {sscanf(yytext, "%d", &yylval); return NUMBER;}
+"-"?[0-9]+             {
+                           if(yytext[0]!='-'){
+                               yylval = (uint16_t)atoi(yytext);
+                           } else {
+                               /* unconditional set as -1 */
+                               yylval = 0xffff;
+                           }
+                           return NUMBER;
+                       }
 [a-zA-Z_\.\$:][0-9a-zA-Z_\.\$:]* {return SYMBOL;}
 "//".*\n|\r|\r\n       {return NL;}
 [ \t]+                 /* ignore space */;
 \n|\r|\r\n             {return NL;}
-.                      {fprintf(stderr, "unknown charactor: %s(%d)\n", yytext, yytext[0]);}
+.                      {fprintf(stderr, "(line:%d) unknown charactor: %s(%d)\n", yylineno, yytext, yytext[0]);}
 %%
 
 uint16_t decode_jump(char* yytext) {
