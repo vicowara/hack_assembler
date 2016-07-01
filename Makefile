@@ -1,7 +1,7 @@
 CC = clang
 LD = clang
 LEX = lex
-YACC = yacc
+YACC = bison
 YACCFLAGS = -dv
 CFLAGS = -g -Wall -DYYERROR_VERBOSE
 LDFLAGS = -ll
@@ -21,10 +21,10 @@ clean:
 	$(RM) $(OBJS) $(PROG) $(TEMPS)
 
 lex.yy.c:	$(LEX_FILE)
-	$(LEX) $<
+	$(LEX) -o $@ $<
 
 y.tab.c:	$(YACC_FILE)
-	$(YACC) $(YACCFLAGS) $(YACC_FILE)
+	$(YACC) $(YACCFLAGS) $(YACC_FILE) -o $@
 
 %.o:	%.c
 	$(CC) $(CFLAGS) -c $<
