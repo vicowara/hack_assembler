@@ -6,62 +6,62 @@
 uint16_t decode_jump(char*);
 uint16_t decode_dest(char*);
 %}
-%option yylineno
+
 %%
-"JGT"                  {yylval = decode_jump(yytext); return JUMP;}
-"JEQ"                  {yylval = decode_jump(yytext); return JUMP;}
-"JGE"                  {yylval = decode_jump(yytext); return JUMP;}
-"JLT"                  {yylval = decode_jump(yytext); return JUMP;}
-"JNE"                  {yylval = decode_jump(yytext); return JUMP;}
-"JLE"                  {yylval = decode_jump(yytext); return JUMP;}
-"JMP"                  {yylval = decode_jump(yytext); return JUMP;}
+"JGT"                  {yylval.value = decode_jump(yytext); return JUMP;}
+"JEQ"                  {yylval.value = decode_jump(yytext); return JUMP;}
+"JGE"                  {yylval.value = decode_jump(yytext); return JUMP;}
+"JLT"                  {yylval.value = decode_jump(yytext); return JUMP;}
+"JNE"                  {yylval.value = decode_jump(yytext); return JUMP;}
+"JLE"                  {yylval.value = decode_jump(yytext); return JUMP;}
+"JMP"                  {yylval.value = decode_jump(yytext); return JUMP;}
 
-"D&A"                  {yylval = 0; return COMP;}
-"D+A"                  {yylval = 2; return COMP;}
-"A-D"                  {yylval = 7; return COMP;}
-"D-A"                  {yylval = 19; return COMP;}
-"D|A"                  {yylval = 21; return COMP;}
+"D&A"                  {yylval.value = 0; return COMP;}
+"D+A"                  {yylval.value = 2; return COMP;}
+"A-D"                  {yylval.value = 7; return COMP;}
+"D-A"                  {yylval.value = 19; return COMP;}
+"D|A"                  {yylval.value = 21; return COMP;}
 
-"D&M"                  {yylval = 64; return COMP;}
-"D+M"                  {yylval = 66; return COMP;}
-"M-D"                  {yylval = 71; return COMP;}
-"D-M"                  {yylval = 83; return COMP;}
-"D|M"                  {yylval = 85; return COMP;}
+"D&M"                  {yylval.value = 64; return COMP;}
+"D+M"                  {yylval.value = 66; return COMP;}
+"M-D"                  {yylval.value = 71; return COMP;}
+"D-M"                  {yylval.value = 83; return COMP;}
+"D|M"                  {yylval.value = 85; return COMP;}
 
-"!D"                   {yylval = 13; return COMP;}
-"D-1"                  {yylval = 14; return COMP;}
-"-D"                   {yylval = 15; return COMP;}
-"D+1"                  {yylval = 31; return COMP;}
-"D"                    {yylval = 12; return COMP;}
+"!D"                   {yylval.value = 13; return COMP;}
+"D-1"                  {yylval.value = 14; return COMP;}
+"-D"                   {yylval.value = 15; return COMP;}
+"D+1"                  {yylval.value = 31; return COMP;}
+"D"                    {yylval.value = 12; return COMP;}
 
-"!A"                   {yylval = 49; return COMP;}
-"A-1"                  {yylval = 50; return COMP;}
-"-A"                   {yylval = 51; return COMP;}
-"A+1"                  {yylval = 55; return COMP;}
-"A"                    {yylval = 48; return COMP;}
+"!A"                   {yylval.value = 49; return COMP;}
+"A-1"                  {yylval.value = 50; return COMP;}
+"-A"                   {yylval.value = 51; return COMP;}
+"A+1"                  {yylval.value = 55; return COMP;}
+"A"                    {yylval.value = 48; return COMP;}
 
-"!M"                   {yylval = 113; return COMP;}
-"M-1"                  {yylval = 114; return COMP;}
-"-M"                   {yylval = 115; return COMP;}
-"M+1"                  {yylval = 119; return COMP;}
-"M"                    {yylval = 112; return COMP;}
+"!M"                   {yylval.value = 113; return COMP;}
+"M-1"                  {yylval.value = 114; return COMP;}
+"-M"                   {yylval.value = 115; return COMP;}
+"M+1"                  {yylval.value = 119; return COMP;}
+"M"                    {yylval.value = 112; return COMP;}
 
 "@"                    {return AT;}
 ";"                    {return SEMIC;}
 "("                    {return O_PAREN;}
 ")"                    {return C_PAREN;}
 
-[AMD]{1,3}"="          {yylval = decode_dest(yytext); return DESTEQ;}
+[AMD]{1,3}"="          {yylval.value = decode_dest(yytext); return DESTEQ;}
 "-"?[0-9]+             {
                            if(yytext[0]!='-'){
-                               yylval = (uint16_t)atoi(yytext);
+                               yylval.value = (uint16_t)atoi(yytext);
                            } else {
                                /* unconditional set as -1 */
-                               yylval = 0xffff;
+                               yylval.value = 0xffff;
                            }
                            return NUMBER;
                        }
-[a-zA-Z_\.\$:][0-9a-zA-Z_\.\$:]* {return SYMBOL;}
+[a-zA-Z_\.\$:][0-9a-zA-Z_\.\$:]* {yylval.symbol = strdup(yytext); return SYMBOL;}
 "//".*\n|\r|\r\n       {return NL;}
 [ \t]+                 /* ignore space */;
 \n|\r|\r\n             {return NL;}

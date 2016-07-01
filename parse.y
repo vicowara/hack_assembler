@@ -1,7 +1,10 @@
 %{
+#include <stdio.h>
 #include <stdint.h>
 #define YYDEBUG 1
-#define YYSTYPE uint16_t
+
+static int output_lineno;
+
 uint16_t set_instructure_type(uint16_t, char);
 uint16_t set_value(uint16_t, uint16_t);
 uint16_t set_comp(uint16_t, uint16_t);
@@ -9,39 +12,65 @@ uint16_t set_dest(uint16_t, uint16_t);
 uint16_t set_jump(uint16_t, uint16_t);
 uint16_t num2comp(uint16_t);
 void putsbin(uint16_t);
+uint16_t symbol_resolv(char*);
+uint16_t symbol_define(char*);
 %}
-%token
-                        NUMBER
-                        SYMBOL
+
+%union
+{
+    uint16_t value;
+    char *symbol;
+}
+
+%token  <value>         NUMBER
                         JUMP
                         DESTEQ
                         COMP
+
+%token  <symbol>        SYMBOL
+
+%token                  AT
                         NL
-                        AT
                         SEMIC
                         O_PAREN
                         C_PAREN
+
+%type   <value>         instructures
+%type   <value>         a_instructure c_instructure
+%type   <symbol>        l_instructure
+
+%start instructures
+
 %%
 
-programs:
-        |       programs NL
-        |       programs a_instructure NL
+instructures:
+        |       instructures NL
+        |       instructures a_instructure NL
                 {
                     $$ = set_instructure_type($2, 'a');
                     putsbin($$);
+                    output_lineno++;
                 }
-        |       programs c_instructure NL
+        |       instructures c_instructure NL
                 {
                     $$ = set_instructure_type($2, 'c');
                     putsbin($$);
+                    output_lineno++;
                 }
-        |       programs l_instructure NL
+        |       instructures l_instructure NL
                 {
                     // symbol define
                 }
         ;
 
-a_instructure:  AT a_expr { $$ = $2; }
+a_instructure:  AT NUMBER
+                {
+                    $$ = $2;
+                }
+        |       AT SYMBOL
+                {
+                    $$ = symbol_resolv($2);
+                }
         ;
 
 c_instructure:  DESTEQ COMP
@@ -71,10 +100,9 @@ c_instructure:  DESTEQ COMP
         ;
 
 l_instructure:  O_PAREN SYMBOL C_PAREN
-        ;
-
-a_expr:         NUMBER
-        |       SYMBOL
+                {
+                    $$ = symbol_define($2);
+                }
         ;
 
 %%
@@ -102,7 +130,7 @@ uint16_t num2comp(uint16_t number) {
         return 42;
     } else if (number == 1) {
         return 63;
-    } else if (number == 0xffff) {
+    } else if (number == 0xffff) { // unsignedなので一応
         return 58;
     }
 }
@@ -137,4 +165,12 @@ void putsbin(uint16_t n) {
         printf("%d", (n >> i) & 1 );
     }
     printf("\n");
+}
+
+uint16_t symbol_resolv(char* symbol){
+    return 0;
+}
+
+uint16_t symbol_define(char* symbol){
+    return 0;
 }
