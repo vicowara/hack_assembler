@@ -1,6 +1,6 @@
 CC = clang
 LD = clang
-LEX = lex
+LEX = flex
 YACC = bison
 YACCFLAGS = -dv
 CFLAGS = -g -Wall -DYYERROR_VERBOSE
