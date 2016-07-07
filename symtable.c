@@ -15,9 +15,10 @@ uint16_t symbol_resolv(char* symbol){
     // まず捜索する
     ep = hsearch(e, FIND);
     if (ep) {
+        // 見つかったので返す
         return *(uint16_t *)(ep->data);
     } else {
-        // 新しい変数の割当
+        // 見つからなかったので新しいメモリ領域を割り当てる
         // hdestroyした時にfreeされるらしいので一応mallocする
         temp = (uint16_t *)malloc(sizeof(uint16_t));
         *temp = assigned_index++;

@@ -43,7 +43,7 @@ void putsbin(uint16_t);
 
 %%
 
-instructures:
+instructures:   // empty
         |       instructures NL
         |       instructures a_instructure NL
                 {
