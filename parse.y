@@ -1,9 +1,11 @@
 %{
 #include <stdio.h>
 #include <stdint.h>
+#include <search.h>
+#include "symtable.h"
 #define YYDEBUG 1
 
-static int output_lineno;
+static uint16_t output_lineno = 0; //一応明示
 
 uint16_t set_instructure_type(uint16_t, char);
 uint16_t set_value(uint16_t, uint16_t);
@@ -12,8 +14,6 @@ uint16_t set_dest(uint16_t, uint16_t);
 uint16_t set_jump(uint16_t, uint16_t);
 uint16_t num2comp(uint16_t);
 void putsbin(uint16_t);
-uint16_t symbol_resolv(char*);
-uint16_t symbol_define(char*);
 %}
 
 %union
@@ -101,7 +101,7 @@ c_instructure:  DESTEQ COMP
 
 l_instructure:  O_PAREN SYMBOL C_PAREN
                 {
-                    $$ = symbol_define($2);
+                    symbol_define($2, output_lineno + 1);
                 }
         ;
 
@@ -165,12 +165,4 @@ void putsbin(uint16_t n) {
         printf("%d", (n >> i) & 1 );
     }
     printf("\n");
-}
-
-uint16_t symbol_resolv(char* symbol){
-    return 0;
-}
-
-uint16_t symbol_define(char* symbol){
-    return 0;
 }

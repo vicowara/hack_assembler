@@ -7,7 +7,7 @@ CFLAGS = -g -Wall -DYYERROR_VERBOSE
 LDFLAGS = -ll
 
 PROG = asm
-OBJS = main.o y.tab.o lex.yy.o
+OBJS = main.o y.tab.o lex.yy.o symtable.o
 TEMPS = y.tab.c y.tab.h lex.yy.c
 
 LEX_FILE = lex.l

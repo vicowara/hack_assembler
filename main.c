@@ -1,11 +1,14 @@
 #include <stdio.h>
+#include <search.h>
+#include <stdint.h>
+
+#include "symtable.h"
 
 extern int yylineno;
 
 void yyerror (char const *s) {
     fprintf(stderr, "%d: %s\n", yylineno, s);
 }
-
 
 int main(int argc, char *argv[]){
     extern int yyparse(void);
@@ -20,7 +23,9 @@ int main(int argc, char *argv[]){
         yyin = fp;
     }
 
+    init_symtable();
     yyparse();
+    destroy_symtable();
     
     return 0;
 }
