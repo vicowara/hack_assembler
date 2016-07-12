@@ -138,7 +138,7 @@ void destruct_parser() {
 }
 
 // FIXME: 関数名が微妙
-node_t* set_instructure_type(node_t *node, char type) {
+static node_t* set_instructure_type(node_t *node, char type) {
     if (!node->is_symbol) {
         if (type == 'a') {
             // 0x8000 == 0b1000000000000000
@@ -151,7 +151,7 @@ node_t* set_instructure_type(node_t *node, char type) {
     return node;
 }
 
-uint16_t num2comp(uint16_t number) {
+static uint16_t num2comp(uint16_t number) {
     if (number == 0) {
         return 42;
     } else if (number == 1) {
@@ -161,7 +161,7 @@ uint16_t num2comp(uint16_t number) {
     }
 }
 
-node_t* set_comp(node_t *node, uint16_t comp) {
+static node_t* set_comp(node_t *node, uint16_t comp) {
     // 0x1fc0 == 0b0001111111000000
     comp = comp << 6;
     comp &= 0x1fc0;
@@ -169,7 +169,7 @@ node_t* set_comp(node_t *node, uint16_t comp) {
     return node;
 }
 
-node_t* set_dest(node_t *node, uint16_t dest) {
+static node_t* set_dest(node_t *node, uint16_t dest) {
     // 0x0038 == 0b0000000000111000
     dest = dest << 3;
     dest &= 0x0038;
@@ -177,7 +177,7 @@ node_t* set_dest(node_t *node, uint16_t dest) {
     return node;
 }
 
-node_t* set_jump(node_t *node, uint16_t jump) {
+static node_t* set_jump(node_t *node, uint16_t jump) {
     // 0x0007 == 0b0000000000000111
     jump &= 0x0007;
     node->value |= jump;
