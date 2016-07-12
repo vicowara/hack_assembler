@@ -13,11 +13,14 @@ TEMPS = y.tab.c y.tab.h lex.yy.c
 LEX_FILE = lex.l
 YACC_FILE = parse.y
 
-.PHONY:	all clean
+.PHONY:	all clean distclean
 
 all:	$(PROG)
 
 clean:
+	$(RM) $(OBJS) $(TEMPS)
+
+distclean:
 	$(RM) $(OBJS) $(PROG) $(TEMPS)
 
 lex.yy.c:	$(LEX_FILE)
