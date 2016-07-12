@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <search.h>
@@ -20,7 +21,10 @@ uint16_t symbol_resolv(char* symbol){
     } else {
         // 見つからなかったので新しいメモリ領域を割り当てる
         // hdestroyした時にfreeされるらしいので一応mallocする
-        temp = (uint16_t *)malloc(sizeof(uint16_t));
+        if ((temp = (uint16_t *)malloc(sizeof(uint16_t))) == NULL) {
+            perror("malloc failed");
+            exit(1);
+        }
         *temp = assigned_index++;
 
         e.data = temp;
@@ -35,7 +39,10 @@ void symbol_define(char* symbol, uint16_t address){
     ENTRY e;
 
     // hdestroyした時にfreeされるらしいので一応mallocする
-    temp = (uint16_t *)malloc(sizeof(uint16_t));
+    if ((temp = (uint16_t *)malloc(sizeof(uint16_t))) == NULL) {
+        perror("malloc failed");
+        exit(1);
+    }
     *temp = address;
 
     e.key = symbol;
