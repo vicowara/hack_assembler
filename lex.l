@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdint.h>
+#include "node.h"
 #include "y.tab.h"
 
 uint16_t decode_jump(char*);

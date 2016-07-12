@@ -3,21 +3,25 @@
 #include <stdint.h>
 #include <search.h>
 #include "symtable.h"
+#include "node.h"
 #define YYDEBUG 1
 
-static uint16_t output_lineno = 0; //一応明示
+static node_t *dummy_head, *current;
 
-uint16_t set_instructure_type(uint16_t, char);
-uint16_t set_value(uint16_t, uint16_t);
-uint16_t set_comp(uint16_t, uint16_t);
-uint16_t set_dest(uint16_t, uint16_t);
-uint16_t set_jump(uint16_t, uint16_t);
-uint16_t num2comp(uint16_t);
-void putsbin(uint16_t);
+void init_parser(void);
+node_t* get_list(void);
+void destruct_parser(void);
+
+static node_t* set_instructure_type(node_t*, char);
+static node_t* set_comp(node_t*, uint16_t);
+static node_t* set_dest(node_t*, uint16_t);
+static node_t* set_jump(node_t*, uint16_t);
+static uint16_t num2comp(uint16_t);
 %}
 
 %union
 {
+    node_t *node;
     uint16_t value;
     char *symbol;
 }
@@ -35,94 +39,114 @@ void putsbin(uint16_t);
                         O_PAREN
                         C_PAREN
 
-%type   <value>         instructures
-%type   <value>         a_instructure c_instructure
-%type   <symbol>        l_instructure
+%type   <node>          instructure
+%type   <node>          a_instructure c_instructure
+%type   <node>          l_instructure
 
 %start instructures
 
 %%
 
-instructures:   // empty
+instructures://     empty
+        |       instructures instructure
+                {
+                    current->next = $2;
+                    current = $2;
+                }
         |       instructures NL
-        |       instructures a_instructure NL
+        ;
+
+instructure:    a_instructure NL
                 {
-                    $$ = set_instructure_type($2, 'a');
-                    putsbin($$);
-                    output_lineno++;
+                    $$ = set_instructure_type($1, 'a');
                 }
-        |       instructures c_instructure NL
+        |       c_instructure NL
                 {
-                    $$ = set_instructure_type($2, 'c');
-                    putsbin($$);
-                    output_lineno++;
+                    $$ = set_instructure_type($1, 'c');
                 }
-        |       instructures l_instructure NL
+        |       l_instructure NL
                 {
-                    // symbol define
+                    $$ = $1;
                 }
         ;
 
 a_instructure:  AT NUMBER
                 {
-                    $$ = $2;
+                    $$ = node_init_with_num($2);
                 }
         |       AT SYMBOL
                 {
-                    $$ = symbol_resolv($2);
+                    $$ = node_init_with_symbol($2);
                 }
         ;
 
 c_instructure:  DESTEQ COMP
                 {
-                    uint16_t temp;
-                    temp = set_dest(0, $1);
-                    $$ = set_comp(temp, $2);
+                    node_t *temp;
+                    temp = new_node();
+                    set_dest(temp, $1);
+                    set_comp(temp, $2);
+                    $$ = temp;
                 }
         |       DESTEQ NUMBER
                 {
-                    uint16_t temp;
-                    temp = set_dest(0, $1);
-                    $$ = set_comp(temp, num2comp($2));
+                    node_t *temp;
+                    temp = new_node();
+                    set_dest(temp, $1);
+                    set_comp(temp, num2comp($2));
+                    $$ = temp;
                 }
         |       COMP SEMIC JUMP
                 {
-                    uint16_t temp;
-                    temp = set_comp(0, $1);
-                    $$ = set_jump(temp, $3);
+                    node_t *temp;
+                    temp = new_node();
+                    set_comp(temp, $1);
+                    set_jump(temp, $3);
+                    $$ = temp;
                 }
         |       NUMBER SEMIC JUMP
                 {
-                    uint16_t temp;
-                    temp = set_comp(0, num2comp($1));
-                    $$ = set_jump(temp, $3);
+                    node_t *temp;
+                    temp = new_node();
+                    set_comp(temp, num2comp($1));
+                    set_jump(temp, $3);
+                    $$ = temp;
                 }
         ;
 
 l_instructure:  O_PAREN SYMBOL C_PAREN
                 {
-                    symbol_define($2, output_lineno + 1);
+                    $$ = node_init_with_label($2);
                 }
         ;
 
 %%
-                // FIXME: 関数名が微妙
-uint16_t set_instructure_type(uint16_t instructure, char type) {
-    if (type == 'a') {
-        // 0x8000 == 0b1000000000000000
-        instructure &= ~0x8000;
-    } else if (type == 'c') {
-        // 0xe000 == 0b1110000000000000
-        instructure |= 0xe000;
-    }
-    return instructure;
+void init_parser(void) {
+    dummy_head = current = new_node();
 }
 
-uint16_t set_value(uint16_t instructure, uint16_t value) {
-    // 0x7fff == 0b0111111111111111
-    value &= 0x7fff;
-    instructure |= value;
-    return instructure;
+node_t* get_list() {
+    // 本当のリストのheadはdummyの次
+    return dummy_head->next;
+}
+
+void destruct_parser() {
+    node_t *tmp;
+    for (tmp = dummy_head; tmp != NULL; tmp = tmp->next) {
+        free(tmp);
+    }
+}
+
+// FIXME: 関数名が微妙
+node_t* set_instructure_type(node_t *node, char type) {
+    if (type == 'a') {
+        // 0x8000 == 0b1000000000000000
+        node->value &= ~0x8000;
+    } else if (type == 'c') {
+        // 0xe000 == 0b1110000000000000
+        node->value |= 0xe000;
+    }
+    return node;
 }
 
 uint16_t num2comp(uint16_t number) {
@@ -135,34 +159,25 @@ uint16_t num2comp(uint16_t number) {
     }
 }
 
-uint16_t set_comp(uint16_t instructure, uint16_t comp) {
+node_t* set_comp(node_t *node, uint16_t comp) {
     // 0x1fc0 == 0b0001111111000000
     comp = comp << 6;
     comp &= 0x1fc0;
-    instructure |= comp;
-    return instructure;
+    node->value |= comp;
+    return node;
 }
 
-uint16_t set_dest(uint16_t instructure, uint16_t dest) {
+node_t* set_dest(node_t *node, uint16_t dest) {
     // 0x0038 == 0b0000000000111000
     dest = dest << 3;
     dest &= 0x0038;
-    instructure |= dest;
-    return instructure;
+    node->value |= dest;
+    return node;
 }
 
-uint16_t set_jump(uint16_t instructure, uint16_t jump) {
+node_t* set_jump(node_t *node, uint16_t jump) {
     // 0x0007 == 0b0000000000000111
     jump &= 0x0007;
-    instructure |= jump;
-    return instructure;
-}
-
-void putsbin(uint16_t n) {
-    int i;
-
-    for (i = 15; i >= 0; i--) {
-        printf("%d", (n >> i) & 1 );
-    }
-    printf("\n");
+    node->value |= jump;
+    return node;
 }
