@@ -1,5 +1,5 @@
-#ifndef _HACK_NODE
-#define _HACK_NODE
+#ifndef NODE_H
+#define NODE_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -19,4 +19,4 @@ node_t* node_init_with_num(uint16_t);
 node_t* node_init_with_symbol(char *);
 node_t* node_init_with_label(char *);
 
-#endif // _HACK_NODE
+#endif // NODE_H

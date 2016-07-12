@@ -1,5 +1,5 @@
-#ifndef _SYMTABLE
-#define _SYMTABLE
+#ifndef SYMTABLE_H
+#define SYMTABLE_H
 
 #define TABLESIZE 1024
 
@@ -10,4 +10,4 @@ void destruct_symtable();
 void symbol_define(char*, uint16_t);
 uint16_t symbol_resolv(char*);
 
-#endif // _SYMTABLE
+#endif // SYMTABLE_H
