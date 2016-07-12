@@ -139,12 +139,14 @@ void destruct_parser() {
 
 // FIXME: 関数名が微妙
 node_t* set_instructure_type(node_t *node, char type) {
-    if (type == 'a') {
-        // 0x8000 == 0b1000000000000000
-        node->value &= ~0x8000;
-    } else if (type == 'c') {
-        // 0xe000 == 0b1110000000000000
-        node->value |= 0xe000;
+    if (!node->is_symbol) {
+        if (type == 'a') {
+            // 0x8000 == 0b1000000000000000
+            node->value &= ~0x8000;
+        } else if (type == 'c') {
+            // 0xe000 == 0b1110000000000000
+            node->value |= 0xe000;
+        }
     }
     return node;
 }
