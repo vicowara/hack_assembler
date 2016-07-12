@@ -25,7 +25,7 @@ int main(int argc, char *argv[]){
 
     init_symtable();
     yyparse();
-    destroy_symtable();
+    destruct_symtable();
     
     return 0;
 }

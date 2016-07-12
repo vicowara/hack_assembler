@@ -75,6 +75,6 @@ void init_symtable() {
     init_predefined_symbols();
 }
 
-void destroy_symtable() {
+void destruct_symtable() {
     hdestroy();
 }
