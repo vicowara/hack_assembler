@@ -137,7 +137,6 @@ void destruct_parser() {
     }
 }
 
-// FIXME: 関数名が微妙
 static node_t* set_instructure_type(node_t *node, char type) {
     if (!node->is_symbol) {
         if (type == 'a') {
@@ -162,24 +161,30 @@ static uint16_t num2comp(uint16_t number) {
 }
 
 static node_t* set_comp(node_t *node, uint16_t comp) {
-    // 0x1fc0 == 0b0001111111000000
-    comp = comp << 6;
-    comp &= 0x1fc0;
-    node->value |= comp;
+    if (!node->is_symbol) {
+        // 0x1fc0 == 0b0001111111000000
+        comp = comp << 6;
+        comp &= 0x1fc0;
+        node->value |= comp;
+    }
     return node;
 }
 
 static node_t* set_dest(node_t *node, uint16_t dest) {
-    // 0x0038 == 0b0000000000111000
-    dest = dest << 3;
-    dest &= 0x0038;
-    node->value |= dest;
+    if (!node->is_symbol) {
+        // 0x0038 == 0b0000000000111000
+        dest = dest << 3;
+        dest &= 0x0038;
+        node->value |= dest;
+    }
     return node;
 }
 
 static node_t* set_jump(node_t *node, uint16_t jump) {
-    // 0x0007 == 0b0000000000000111
-    jump &= 0x0007;
-    node->value |= jump;
+    if (!node->is_symbol) {
+        // 0x0007 == 0b0000000000000111
+        jump &= 0x0007;
+        node->value |= jump;
+    }
     return node;
 }
